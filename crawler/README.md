@@ -1,5 +1,11 @@
 # simple crawler for poetry site
 
-accessing to given index of site page, get all poem
+# Caution
+ - this crawler can potentially harm server performance, if wait time is not properly selected.
 
-not completed : fine tuning, auto crawling
+usage : crawl(page-number, list_wait, poem_wait)
+	page_number	- crawling poem list index
+	list_wait	- wait seconds per list move
+	poem_wait	- wait seconds per poem move
+
+data example : text1.txt
