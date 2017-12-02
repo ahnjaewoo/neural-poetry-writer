@@ -8,7 +8,7 @@
 	3. load from file
 	4. get numpy vectors that correspond to given text
 	5. get expected size of a vector
-TODO : upper case letter should be same value as lower case letter
+- TODO : upper case letter should be same value as lower case letter
 
 2. data_loader
 - manage poem input data
@@ -19,7 +19,7 @@ TODO : upper case letter should be same value as lower case letter
 	2. load from file
 	3. save to file
 	4. make batch
-TODO : make 2 batch method
+- TODO : make 2 batch method
 
 3. data_gatherer
 - gather separated poem data, save to one file
