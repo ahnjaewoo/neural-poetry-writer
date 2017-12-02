@@ -8,6 +8,7 @@
 	3. load from file
 	4. get numpy vectors that correspond to given text
 	5. get expected size of a vector
+TODO : upper case letter should be same value as lower case letter
 
 2. data_loader
 - manage poem input data
@@ -21,3 +22,6 @@
 
 3. data_gatherer
 - gather separated poem data, save to one file
+- major functions:
+	1. clean target file
+	2. gather all files, save to target file
