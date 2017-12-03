@@ -25,7 +25,9 @@
 - gather separated poem data, save to one file
 - major functions:
 	1. clean target file
+		- 2 files : all poem connected file / poem separated file
 	2. gather all files, save to target file
-
+		- 2 files : all poem connected file / poem separated file
+		- use data_parser
 4. data_parser
 - process raw poem file, return set of title and set of poem_data in the file
