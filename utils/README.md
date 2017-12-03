@@ -30,5 +30,10 @@
 		- 2 files : all poem connected file / poem separated file
 		- use data_parser
 	3. parsing for poem files, before gather function
+
 4. batch maker
 - manage sequence and batch creation
+- (drop/add), (normal/stride), (whole/one) mode
+	1. (drop/add) : divided by seq_len, leftover part should be (dropped/padded)
+	2. (normal/stride) : making sequence by striding seq_len filter
+	3. (whole/one) : make sequence with (whole data text/separate each poem)
