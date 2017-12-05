@@ -1,5 +1,6 @@
 import codecs
 import numpy as np
+from code_book import code_book
 
 # 여러 파일에 나뉘어져있는 데이터를 한 파일로 합치기 위한 모듈
 # clean : 저장 할 파일을 초기화
@@ -96,7 +97,7 @@ class batch_maker():
 			return None
 
 	# make sequences from source
-	def seqs_normal(self, source, start, end, title_seq_save=False):
+	def seqs_normal(self, source, start, end, title_seq_save=False, title=''):
 		seq_len = self.seq_len
 		text_mode = self.text_mode
 
@@ -115,10 +116,12 @@ class batch_maker():
 			prd.append(text[0+idx:seq_len+idx]) for idx in range(0, len(text), seq_len)
 		# save title:seq_count data file
 		if(title_seq_save):
-
+			f = codecs.open('title_seqs.txt', "a", self.encoding)
+			f.write(title+'\n'+str(len(prd))+'\n')
+			f.close()
 		return prd
 	# make sequences from source, strided method
-	def seqs_stride(self, source, start, end, title_seq_save=False):
+	def seqs_stride(self, source, start, end, title_seq_save=False, title=''):
 		seq_len = self.seq_len
 
 		text = source[start:end]
@@ -137,7 +140,9 @@ class batch_maker():
 				stride_idx += stride
 		# save title:seq_count data file
 		if(title_seq_save):
-
+			f = codecs.open('title_seqs.txt', "a", self.encoding)
+			f.write(title+'\n'+str(len(prd))+'\n')
+			f.close()
 		return prd
 
 	def titles_load(self, filename):
@@ -169,7 +174,7 @@ class batch_maker():
 		# else LOOP title file
 		# 	make seqs(src, start, end, self.title_seq_save) with seqs_mode
 		else:
-			titles, t_indice = titles_load("title_set.txt")
+			titles, t_indice = titles_load(title_filename)
 			idx = 0
 			t_start = 0
 			t_end = 0
@@ -178,9 +183,9 @@ class batch_maker():
 				t_start = t_end
 				t_end += t_indice[idx]
 				if(seqs_mode == 'normal'):
-					seqs += seqs_normal(source, t_start, t_end, self.title_seq_save)
+					seqs += seqs_normal(source, t_start, t_end, self.title_seq_save, titles[idx])
 				else:
-					seqs += seqs_stride(source, t_start, t_end, self.title_seq_save)
+					seqs += seqs_stride(source, t_start, t_end, self.title_seq_save, titles[idx])
 				idx += 1
 		# for each seq in seqs
 		for seq in seqs:
@@ -199,14 +204,45 @@ class batch_maker():
 # https://chunml.github.io/ChunML.github.io/project/Creating-Text-Generator-Using-Recurrent-Neural-Network/
 # 참조
 class data_loader():
-	def __init__(self, seq_len, batch, poem_collection="poem_collection.txt", encoding='utf-8'):
-		self.poem_collection = poem_collection
+	def __init__(self, seq_len, batch, poem_set="poem_set.txt", title_set='title_set.txt', code_set='code_set.txt', encoding='utf-8'):
+		self.poem_set = poem_set
+		self.title_set = title_set
+		self.code_set = code_set
 		self.seq_len = seq_len
 		self.batch = batch
 		self.encoding = encoding
+		self.cb = code_book()
+		self.bm = batch_maker(
+			batch_size=20,
+			seq_len=20,
+			stride=2,
+			text_mode='add',
+			seqs_mode='normal',
+			batch_mode='whole',
+			title_seq_save=False)
+
 	def data_preprocess():
+		textfile_end = 1000
+		path_list = ['text'+str(i)+'.txt' for i in range(1, textfile_end)]
+		# gather data
+		gatherer = data_gatherer()
+		gatherer.clean()
+		gatherer.gather(path_list)
+		# open source
+		f = codecs.open(self.poem_set, "r", self.encoding)
+		source = f.read()
+		# make vector, save
+		cb = self.cb
+		for ch in source:
+			cb.gather(ch)
+		cb.save_to(self.code_set)
+		# make batches, save
+		bm = self.bm
+		batchs = bm.make_batchs(source, self.title_set)
 		return
 	def data_load():
-		return
-	def make_batch():
+		# load vector
+		cb = self.cb
+		cb.load_from(self.code_set)
+		# load batches
 		return
