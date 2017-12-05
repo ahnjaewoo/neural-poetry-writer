@@ -55,12 +55,17 @@ class data_gatherer():
 # drop/add
 # normal/stride
 # whole/one -------------------------------------> TODO
+
 class batch_maker():
-	def __init__(self, batch_size=20, seq_len=20, stride=2, mode='add'):
+	def __init__(self, batch_size=20, seq_len=20, stride=2, text_mode='add', seqs_mode='normal', batch_mode='whole', title_seq_save=False, encoding='utf-8'):
 		self.stride = stride
-		self.mode = mode
 		self.seq_len = seq_len
 		self.batch_size = batch_size
+		self.text_mode = text_mode
+		self.seqs_mode = seqs_mode
+		self.batch_mode = batch_mode
+		self.title_seq_save = False
+		self.encoding = encoding
 	# drop leftover based on sequence length
 	def dropped_text(self, text):
 		seq_len = self.seq_len
@@ -91,9 +96,9 @@ class batch_maker():
 			return None
 
 	# make sequences from source
-	def seqs_normal(self, source, start, end):
+	def seqs_normal(self, source, start, end, title_seq_save=False):
 		seq_len = self.seq_len
-		mode = self.mode
+		text_mode = self.text_mode
 
 		text = source[start:end]
 		if(len(text) < seq_len):
@@ -102,15 +107,18 @@ class batch_maker():
 			prd.append(text)
 		else:
 			# 2 drop/append routine
-			if(mode == 'add'):
+			if(text_mode == 'add'):
 				text = added_text(text)
 			else:
 				text = dropped_text(text)
 			# split by seq_len
 			prd.append(text[0+idx:seq_len+idx]) for idx in range(0, len(text), seq_len)
+		# save title:seq_count data file
+		if(title_seq_save):
+
 		return prd
 	# make sequences from source, strided method
-	def seqs_stride(self, source, start, end):
+	def seqs_stride(self, source, start, end, title_seq_save=False):
 		seq_len = self.seq_len
 
 		text = source[start:end]
@@ -127,13 +135,54 @@ class batch_maker():
 				prd.append(seq)
 				# slide
 				stride_idx += stride
+		# save title:seq_count data file
+		if(title_seq_save):
+
 		return prd
 
-	def make_batchs(self):
+	def titles_load(self, filename):
+		f = codecs.open(filename, "r", encoding=self.encoding)
+		lines = f.readlines()
+		idx = 0
+		titles = list()
+		t_indice = list()
+		while(idx + 1 >= len(lines)):
+			titles.append(lines[idx])
+			t_indice.append(lines[idx+1])
+			idx += 2
+		f.close()
+		return titles, t_indice
+	def make_batchs(self, source, title_filename):
+		seqs_mode = self.seqs_mode
+		batch_mode = self.batch_mode
+
 		count = 0
 		batchs = list()
 		batch = list()
-		# get seqs by seqs_ function
+		# get all seqs by seqs_ function
+		# if whole, just move to seqs_mode branch with all scope -> title_save is automatically false
+		if(batch_mode == 'whole'):
+			if(seqs_mode == 'normal'):
+				seqs = seqs_normal(source, 0, len(source))
+			else:
+				seqs = seqs_stride(source, 0, len(source))
+		# else LOOP title file
+		# 	make seqs(src, start, end, self.title_seq_save) with seqs_mode
+		else:
+			titles, t_indice = titles_load("title_set.txt")
+			idx = 0
+			t_start = 0
+			t_end = 0
+			seqs = list()
+			while(idx < len(titles)):
+				t_start = t_end
+				t_end += t_indice[idx]
+				if(seqs_mode == 'normal'):
+					seqs += seqs_normal(source, t_start, t_end, self.title_seq_save)
+				else:
+					seqs += seqs_stride(source, t_start, t_end, self.title_seq_save)
+				idx += 1
+		# for each seq in seqs
 		for seq in seqs:
 			if(count >= batch_size):
 				count = 0
@@ -144,7 +193,6 @@ class batch_maker():
 		if(count >= batch_size):
 			batchs.append(batch)
 		return batchs
-	def batchs_poem():
 
 # 데이터를 로드, 전처리, 배치 생성을 위함
 # https://github.com/sherjilozair/char-rnn-tensorflow/blob/master/utils.py
