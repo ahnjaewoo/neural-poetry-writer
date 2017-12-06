@@ -246,10 +246,12 @@ class batch_maker():
 # https://chunml.github.io/ChunML.github.io/project/Creating-Text-Generator-Using-Recurrent-Neural-Network/
 # 참조
 class data_loader():
-	def __init__(self, seq_len, batch_size, poem_set="poem_set.txt", title_set='title_set.txt', code_set='code_set.txt', batch_set='batch_set.txt', encoding='utf-8'):
-		self.poem_set = poem_set
-		self.title_set = title_set
-		self.code_set = code_set
+	def __init__(self, seq_len, batch_size, encoding='utf-8'):
+		self.poem_set = "poem_set.txt"
+		self.title_set = "title_set.txt"
+		self.code_set = "code_set.txt"
+		self.batch_set = "batch_set.txt"
+		self.npbatch_set = "np_batchs.npy"
 		self.seq_len = seq_len
 		self.batch_size = batch_size
 		self.encoding = encoding
@@ -267,48 +269,43 @@ class data_loader():
 	#def preprocess(self, textfile_end = 2, file_prefix = 'data/data/text', file_postfix='.txt'):# debug
 		path_list = [(file_prefix+str(i)+file_postfix) for i in range(1, textfile_end + 1)]
 		# gather data
+		print('gatherer start')
 		gatherer = data_gatherer()
 		gatherer.clean()
 		gatherer.gather(path_list)
+
+
 		# open source
+		print('source read')
 		f = codecs.open(self.poem_set, "r", self.encoding)
 		source = f.read()
-		
-
-
-
+	
 
 		# make vector, save
+		print('code_book setup start')
 		cb = self.cb
 		for ch in source:
 			cb.gather(ch)
 		cb.sort_codes()
+		print('code_book length : '+str(cb.size()))
 		cb.save_to(self.code_set)
 
 
-
-
-
-
-
-		'''
-		# make batches, save
+		# make batches
+		print('batch making start')
 		bm = self.bm
 		batchs = bm.make_batchs(source, self.title_set)
-		print(batchs[0])
-		'''
 
-
-
-
-
-
-		'''
-		save_batchs(self.batch_set, batchs)
-		'''
-
-
-
+		#save_batchs(self.batch_set, batchs)
+		
+		# make number batchs
+		print('number batch making start')
+		cb = self.cb
+		number_batchs = cb.get_number_batchs(batchs)
+		np_batchs = np.array(number_batchs)
+		np.save(self.npbatch_set, np_batchs)
+		self.np_batchs = np_batchs
+		
 		print('preprocess done.')
 		return
 	def load(self):
@@ -316,5 +313,8 @@ class data_loader():
 		cb = self.cb
 		cb.load_from(self.code_set)
 		# load batches
-		batchs = bm.load_batchs(self.batch_set)
+		#batchs = bm.load_batchs(self.batch_set)
+		# load np_batchs
+		np_batchs = np.load(self.npbatch_set)
+		self.np_batchs = np_batchs
 		return
