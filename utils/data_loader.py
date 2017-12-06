@@ -328,6 +328,6 @@ class data_loader():
 		# load batches
 		#batchs = bm.load_batchs(self.batch_set)
 		# load np_batchs
-		np_batchs = np.load(self.npbatch_set)
+		np_batchs = np.load(self.midfile_dir +'/'+ self.npbatch_set)
 		self.np_batchs = np_batchs
 		return
