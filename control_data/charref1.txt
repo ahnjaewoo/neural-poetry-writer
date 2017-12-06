@@ -1,0 +1,31 @@
+﻿
+
+&NewLine;
+	
+&Tab;
+ 
+&nbsp; &NonBreakingSpace; &ensp; &emsp; &emsp13; &emsp14; &numsp; &puncsp; &thinsp; &ThinSpace; &hairsp; &VeryThinSpace; &ZeroWidthSpace; &NegativeVeryThinSpace; &NegativeThinSpace; &NegativeMediumSpace; &NegativeThickSpace;
+'
+&lsquo; &OpenCurlyQuote;
+'
+&rsquo; &rsquor; &CloseCurlyQuote;
+,
+&lsquor; &sbquo;
+"
+&ldquo; &OpenCurlyDoubleQuote;
+"
+&rdquo; &rdquor; &CloseCurlyDoubleQuote;
+"
+&ldquor; &bdquo;
+'
+&prime;
+"
+&Prime;
+"
+&tprime;
+'
+&bprime; &backprime;
+A
+&Ascr;
+&Afr;
+&Aopf;
