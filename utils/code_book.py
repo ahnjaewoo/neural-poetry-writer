@@ -8,28 +8,47 @@ class code_book():
         self.vector_size = 0
         self.codes = dict()
     # gather - if given character is unknown, create mapping and add it to codes
+    # gather fucntion changes : now count occurence
     def gather(self, character):
         if(self.codes.get(character) == None):
-            self.codes[character] = self.vector_size
-            self.vector_size += 1
+            self.codes[character] = 1
+        else:
+            self.codes[character] += 1
+    def sort_codes(self):
+        codes = self.codes
+        codes_list = sorted(codes, key=lambda k : codes[k], reverse=True)
+        codes_temp = dict()
+        idx = 0
+        for ch in codes_list:
+            codes_temp[ch] = idx
+            idx += 1
+        self.codes = codes_temp
+        self.vector_size = idx
     # save to a file with specific format, use codes
     def save_to(self, filename):
         f = codecs.open(filename, "w", 'utf-8')
         codes = self.codes
         for key, value in codes.items():
-            f.write(key+str(value)+'\n')
+            f.write(key)
         f.close()
     # load from a file of format assumption, form codes
     def load_from(self, filename):
         self.codes.clear()
         f = codecs.open(filename, "r", 'utf-8')
-        lines = f.readlines()
-        for value in lines:
-            self.codes[value[0]] = int(value[1:-1])
+        text = f.read()
+        idx = 0
+        for ch in text:
+            self.codes[ch] = idx
+            idx += 1
+        self.vector_size = idx
         f.close()
+
+    def get_numbers(self, text):
+        numbers = [self.codes[character] for character in text]
+        return numbers
     # get numpy vector representation of string, based on codes
     def get_vectors(self, text):
-        text_num = [self.codes[character] for character in text]
+        text_num = get_numbers(text)
         vectors = np.zeros((len(text), self.vector_size))
         for i in range(len(text)):
             vectors[i][text_num[i]] = 1

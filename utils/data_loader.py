@@ -1,6 +1,6 @@
 import codecs
 import numpy as np
-from code_book import code_book
+from utils.code_book import code_book
 
 # 여러 파일에 나뉘어져있는 데이터를 한 파일로 합치기 위한 모듈
 # clean : 저장 할 파일을 초기화
@@ -102,18 +102,19 @@ class batch_maker():
 		text_mode = self.text_mode
 
 		text = source[start:end]
+		prd = list()
 		if(len(text) < seq_len):
 			# 1 append routine
-			text = added_text(text)
+			text = self.added_text(text)
 			prd.append(text)
 		else:
 			# 2 drop/append routine
 			if(text_mode == 'add'):
-				text = added_text(text)
+				text = self.added_text(text)
 			else:
-				text = dropped_text(text)
+				text = self.dropped_text(text)
 			# split by seq_len
-			prd.append(text[0+idx:seq_len+idx]) for idx in range(0, len(text), seq_len)
+			prd.extend(text[0+idx:seq_len+idx] for idx in range(0, len(text), seq_len))
 		# save title:seq_count data file
 		if(title_seq_save):
 			f = codecs.open('title_seqs.txt', "a", self.encoding)
@@ -128,16 +129,19 @@ class batch_maker():
 		prd = list()
 		if(len(text) < seq_len):
 			# 1 append routine
-			text = added_text(text)
+			text = self.added_text(text)
 			prd.append(text)
 		else:
 			text_len = len(text)
 			stride_idx = 0
-			while((seq = seqs_stride_get(text, stride_idx, text_len)) != None):
+			seq = self.seqs_stride_get(text, stride_idx, text_len)
+			while(seq != None):
 				# add seq to prd
 				prd.append(seq)
 				# slide
 				stride_idx += stride
+				# move
+				seq = self.seqs_stride_get(text, stride_idx, text_len)
 		# save title:seq_count data file
 		if(title_seq_save):
 			f = codecs.open('title_seqs.txt', "a", self.encoding)
@@ -160,6 +164,7 @@ class batch_maker():
 	def make_batchs(self, source, title_filename):
 		seqs_mode = self.seqs_mode
 		batch_mode = self.batch_mode
+		batch_size = self.batch_size
 
 		count = 0
 		batchs = list()
@@ -168,13 +173,13 @@ class batch_maker():
 		# if whole, just move to seqs_mode branch with all scope -> title_save is automatically false
 		if(batch_mode == 'whole'):
 			if(seqs_mode == 'normal'):
-				seqs = seqs_normal(source, 0, len(source))
+				seqs = self.seqs_normal(source, 0, len(source))
 			else:
-				seqs = seqs_stride(source, 0, len(source))
+				seqs = self.seqs_stride(source, 0, len(source))
 		# else LOOP title file
 		# 	make seqs(src, start, end, self.title_seq_save) with seqs_mode
 		else:
-			titles, t_indice = titles_load(title_filename)
+			titles, t_indice = self.titles_load(title_filename)
 			idx = 0
 			t_start = 0
 			t_end = 0
@@ -183,9 +188,9 @@ class batch_maker():
 				t_start = t_end
 				t_end += t_indice[idx]
 				if(seqs_mode == 'normal'):
-					seqs += seqs_normal(source, t_start, t_end, self.title_seq_save, titles[idx])
+					seqs += self.seqs_normal(source, t_start, t_end, self.title_seq_save, titles[idx])
 				else:
-					seqs += seqs_stride(source, t_start, t_end, self.title_seq_save, titles[idx])
+					seqs += self.seqs_stride(source, t_start, t_end, self.title_seq_save, titles[idx])
 				idx += 1
 		# for each seq in seqs
 		for seq in seqs:
@@ -198,32 +203,69 @@ class batch_maker():
 		if(count >= batch_size):
 			batchs.append(batch)
 		return batchs
+	def save_batchs(self, filename, batchs):
+		stride = self.stride
+		seq_len = self.seq_len
+		batch_size = self.batch_size
+		text_mode = self.text_mode
+		seqs_mode = self.seqs_mode
+		batch_mode = self.batch_mode
+		title_save = self.title_seq_save
+
+		f.codecs.open(filename, "w", encoding=self.encoding)
+		f.write(str(stride)+"\n")
+		f.write(str(seq_len)+"\n")
+		f.write(str(batch_size)+"\n")
+		f.write(str(text_mode)+"\n")
+		f.write(str(seqs_mode)+"\n")
+		f.write(str(batch_mode)+"\n")
+		f.write(str(title_save)+"\n")
+
+		for batch in batchs:
+			for seq in batch:
+				f.write(seq)
+		f.close()
+	def load_batchs(self, filename):
+		seq_len = self.seq_len
+		batch_size = self.batch_size
+
+		f.codecs.open(filename, "r", encoding=self.encoding)
+		text = f.read()
+
+		seqs = list()
+		batchs = list()
+		seqs.extend(text[0+idx:seq_len+idx] for idx in range(0, len(text), seq_len))
+		batchs.extend(seqs[0+idx:batch_size+idx] for idx in range(0, len(text), batch_size))
+		return batchs
+
+
+
 
 # 데이터를 로드, 전처리, 배치 생성을 위함
 # https://github.com/sherjilozair/char-rnn-tensorflow/blob/master/utils.py
 # https://chunml.github.io/ChunML.github.io/project/Creating-Text-Generator-Using-Recurrent-Neural-Network/
 # 참조
 class data_loader():
-	def __init__(self, seq_len, batch, poem_set="poem_set.txt", title_set='title_set.txt', code_set='code_set.txt', encoding='utf-8'):
+	def __init__(self, seq_len, batch_size, poem_set="poem_set.txt", title_set='title_set.txt', code_set='code_set.txt', batch_set='batch_set.txt', encoding='utf-8'):
 		self.poem_set = poem_set
 		self.title_set = title_set
 		self.code_set = code_set
 		self.seq_len = seq_len
-		self.batch = batch
+		self.batch_size = batch_size
 		self.encoding = encoding
 		self.cb = code_book()
 		self.bm = batch_maker(
-			batch_size=20,
-			seq_len=20,
+			batch_size=batch_size,
+			seq_len=seq_len,
 			stride=2,
 			text_mode='add',
 			seqs_mode='normal',
 			batch_mode='whole',
 			title_seq_save=False)
 
-	def data_preprocess():
-		textfile_end = 1000
-		path_list = ['text'+str(i)+'.txt' for i in range(1, textfile_end)]
+	def preprocess(self, textfile_end = 2123, file_prefix = 'data/text', file_postfix='.txt'):
+	#def preprocess(self, textfile_end = 2, file_prefix = 'data/data/text', file_postfix='.txt'):# debug
+		path_list = [(file_prefix+str(i)+file_postfix) for i in range(1, textfile_end + 1)]
 		# gather data
 		gatherer = data_gatherer()
 		gatherer.clean()
@@ -231,18 +273,48 @@ class data_loader():
 		# open source
 		f = codecs.open(self.poem_set, "r", self.encoding)
 		source = f.read()
+		
+
+
+
+
 		# make vector, save
 		cb = self.cb
 		for ch in source:
 			cb.gather(ch)
+		cb.sort_codes()
 		cb.save_to(self.code_set)
+
+
+
+
+
+
+
+		'''
 		# make batches, save
 		bm = self.bm
 		batchs = bm.make_batchs(source, self.title_set)
+		print(batchs[0])
+		'''
+
+
+
+
+
+
+		'''
+		save_batchs(self.batch_set, batchs)
+		'''
+
+
+
+		print('preprocess done.')
 		return
-	def data_load():
+	def load(self):
 		# load vector
 		cb = self.cb
 		cb.load_from(self.code_set)
 		# load batches
+		batchs = bm.load_batchs(self.batch_set)
 		return
