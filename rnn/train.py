@@ -53,7 +53,7 @@ def time_since(since):
     return '%dm %ds' % (m, s)
 
 # save trained model
-def save(model, file_name):
-  save_filename = os.path.splitext(os.path.basename(file_name))[0] + '.pt'
+def save(model, path):
+  save_filename = path + '.pt'
   torch.save(model, save_filename)
   print('Saved as %s' % save_filename)
