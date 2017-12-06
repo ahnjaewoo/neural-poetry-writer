@@ -7,10 +7,13 @@ from utils.code_book import code_book
 # gather('a.txt', 'b.txt', ...) : args로 주어진 파일들을 읽어 대상파일로 저장
 # (drop/add), (normal/stride), (whole/one) mode is not this module's scope.
 class data_gatherer():
-	def __init__(self, encoding='utf-8'):
+	def __init__(self, rawfile_dir, midfile_dir, encoding='utf-8'):
 		self.poem_set = 'poem_set.txt'
 		self.title_set = 'title_set.txt'
 		self.encoding = encoding
+
+		self.rawfile_dir = rawfile_dir
+		self.midfile_dir = midfile_dir
 	def path_parse(self, text):
 		title = list()
 		data = list()
@@ -27,15 +30,15 @@ class data_gatherer():
 				data.append(text[middle+len('POEM_DATA\n'):start-1])
 		return title, data
 	def clean(self):
-		f = codecs.open(self.poem_set, "w", self.encoding)
+		f = codecs.open(self.midfile_dir +'/'+ self.poem_set, "w", self.encoding)
 		f.close()
-		f = codecs.open(self.title_set, "w", self.encoding)
+		f = codecs.open(self.midfile_dir +'/'+ self.title_set, "w", self.encoding)
 		f.close()
 	def gather(self, path_list):
-		f1 = codecs.open(self.poem_set, "a", self.encoding)
-		f3 = codecs.open(self.title_set, "a", self.encoding)
+		f1 = codecs.open(self.midfile_dir +'/'+ self.poem_set, "a", self.encoding)
+		f3 = codecs.open(self.midfile_dir +'/'+ self.title_set, "a", self.encoding)
 		for path in path_list:
-			with codecs.open(path, "r", encoding=self.encoding) as f2:
+			with codecs.open(self.rawfile_dir +'/'+ path, "r", encoding=self.encoding) as f2:
 				text = f2.read()
 				# do text processing
 				titles, data = self.path_parse(text)
@@ -58,7 +61,7 @@ class data_gatherer():
 # whole/one -------------------------------------> TODO
 
 class batch_maker():
-	def __init__(self, batch_size=20, seq_len=20, stride=2, text_mode='add', seqs_mode='normal', batch_mode='whole', title_seq_save=False, encoding='utf-8'):
+	def __init__(self, rawfile_dir, midfile_dir, batch_size=20, seq_len=20, stride=2, text_mode='add', seqs_mode='normal', batch_mode='whole', title_seq_save=False, encoding='utf-8'):
 		self.stride = stride
 		self.seq_len = seq_len
 		self.batch_size = batch_size
@@ -67,6 +70,9 @@ class batch_maker():
 		self.batch_mode = batch_mode
 		self.title_seq_save = False
 		self.encoding = encoding
+
+		self.rawfile_dir = rawfile_dir
+		self.midfile_dir = midfile_dir
 	# drop leftover based on sequence length
 	def dropped_text(self, text):
 		seq_len = self.seq_len
@@ -117,7 +123,7 @@ class batch_maker():
 			prd.extend(text[0+idx:seq_len+idx] for idx in range(0, len(text), seq_len))
 		# save title:seq_count data file
 		if(title_seq_save):
-			f = codecs.open('title_seqs.txt', "a", self.encoding)
+			f = codecs.open(self.midfile_dir +'/'+ 'title_seqs.txt', "a", self.encoding)
 			f.write(title+'\n'+str(len(prd))+'\n')
 			f.close()
 		return prd
@@ -144,13 +150,13 @@ class batch_maker():
 				seq = self.seqs_stride_get(text, stride_idx, text_len)
 		# save title:seq_count data file
 		if(title_seq_save):
-			f = codecs.open('title_seqs.txt', "a", self.encoding)
+			f = codecs.open(self.midfile_dir +'/'+ 'title_seqs.txt', "a", self.encoding)
 			f.write(title+'\n'+str(len(prd))+'\n')
 			f.close()
 		return prd
 
 	def titles_load(self, filename):
-		f = codecs.open(filename, "r", encoding=self.encoding)
+		f = codecs.open(self.midfile_dir +'/'+ filename, "r", encoding=self.encoding)
 		lines = f.readlines()
 		idx = 0
 		titles = list()
@@ -212,7 +218,7 @@ class batch_maker():
 		batch_mode = self.batch_mode
 		title_save = self.title_seq_save
 
-		f.codecs.open(filename, "w", encoding=self.encoding)
+		f.codecs.open(self.midfile_dir +'/'+ filename, "w", encoding=self.encoding)
 		f.write(str(stride)+"\n")
 		f.write(str(seq_len)+"\n")
 		f.write(str(batch_size)+"\n")
@@ -229,7 +235,7 @@ class batch_maker():
 		seq_len = self.seq_len
 		batch_size = self.batch_size
 
-		f.codecs.open(filename, "r", encoding=self.encoding)
+		f.codecs.open(self.midfile_dir +'/'+ filename, "r", encoding=self.encoding)
 		text = f.read()
 
 		seqs = list()
@@ -246,7 +252,7 @@ class batch_maker():
 # https://chunml.github.io/ChunML.github.io/project/Creating-Text-Generator-Using-Recurrent-Neural-Network/
 # 참조
 class data_loader():
-	def __init__(self, seq_len, batch_size, encoding='utf-8'):
+	def __init__(self, seq_len, batch_size, rawfile_dir, midfile_dir, encoding='utf-8'):
 		self.poem_set = "poem_set.txt"
 		self.title_set = "title_set.txt"
 		self.code_set = "code_set.txt"
@@ -255,8 +261,13 @@ class data_loader():
 		self.seq_len = seq_len
 		self.batch_size = batch_size
 		self.encoding = encoding
-		self.cb = code_book()
+		self.rawfile_dir = rawfile_dir
+		self.midfile_dir = midfile_dir
+
+		self.cb = code_book(midfile_dir)
 		self.bm = batch_maker(
+			rawfile_dir,
+			midfile_dir,
 			batch_size=batch_size,
 			seq_len=seq_len,
 			stride=2,
@@ -265,19 +276,21 @@ class data_loader():
 			batch_mode='whole',
 			title_seq_save=False)
 
-	def preprocess(self, textfile_end = 2123, file_prefix = 'data/text', file_postfix='.txt'):
-	#def preprocess(self, textfile_end = 2, file_prefix = 'data/data/text', file_postfix='.txt'):# debug
+	def set_dir(self, rawfile_dir, midfile_dir):
+		self.rawfile_dir = rawfile_dir
+		self.midfile_dir = midfile_dir
+	def preprocess(self, textfile_end = 2123, file_prefix = 'text', file_postfix='.txt'):
 		path_list = [(file_prefix+str(i)+file_postfix) for i in range(1, textfile_end + 1)]
 		# gather data
 		print('gatherer start')
-		gatherer = data_gatherer()
+		gatherer = data_gatherer(self.rawfile_dir, self.midfile_dir)
 		gatherer.clean()
 		gatherer.gather(path_list)
 
 
 		# open source
 		print('source read')
-		f = codecs.open(self.poem_set, "r", self.encoding)
+		f = codecs.open(self.midfile_dir +'/'+ self.poem_set, "r", self.encoding)
 		source = f.read()
 	
 
@@ -303,9 +316,9 @@ class data_loader():
 		cb = self.cb
 		number_batchs = cb.get_number_batchs(batchs)
 		np_batchs = np.array(number_batchs)
-		np.save(self.npbatch_set, np_batchs)
+		np.save(self.midfile_dir +'/'+ self.npbatch_set, np_batchs)
 		self.np_batchs = np_batchs
-		
+
 		print('preprocess done.')
 		return
 	def load(self):
@@ -315,6 +328,6 @@ class data_loader():
 		# load batches
 		#batchs = bm.load_batchs(self.batch_set)
 		# load np_batchs
-		np_batchs = np.load(self.npbatch_set)
+		np_batchs = np.load(self.midfile_dir +'/'+ self.npbatch_set)
 		self.np_batchs = np_batchs
 		return
