@@ -1,7 +1,4 @@
-﻿
-
-&NewLine;
-	
+﻿	
 &Tab;
  
 &nbsp; &NonBreakingSpace; &ensp; &emsp; &emsp13; &emsp14; &numsp; &puncsp; &thinsp; &ThinSpace; &hairsp; &VeryThinSpace; &ZeroWidthSpace; &NegativeVeryThinSpace; &NegativeThinSpace; &NegativeMediumSpace; &NegativeThickSpace;
@@ -29,3 +26,9 @@ A
 &Ascr;
 &Afr;
 &Aopf;
+'
+‘ ’
+"
+“ ”
+‚
+,

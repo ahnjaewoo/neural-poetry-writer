@@ -1,6 +1,7 @@
 import codecs
 import numpy as np
 from utils.code_book import code_book
+from utils.data_cutter import data_cutter
 
 # 여러 파일에 나뉘어져있는 데이터를 한 파일로 합치기 위한 모듈
 # clean : 저장 할 파일을 초기화
@@ -14,6 +15,8 @@ class data_gatherer():
 
 		self.rawfile_dir = rawfile_dir
 		self.midfile_dir = midfile_dir
+		self.cutter = data_cutter('control_data')
+
 	def path_parse(self, text):
 		title = list()
 		data = list()
@@ -23,11 +26,17 @@ class data_gatherer():
 			middle = text.find('POEM_DATA\n')
 			start = text.find('POEM_TITLE\n')
 			
-			title.append(text[:middle-1])
+			title_text = text[:middle-1]
+			title_text = self.cutter.data_cut(title_text)
+			title.append(title_text)
 			if(start == -1):
-				data.append(text[middle+len('POEM_DATA\n'):-1])
+				data_text = text[middle+len('POEM_DATA\n'):-1]
+				data_text = self.cutter.data_cut(data_text)
+				data.append(data_text)
 			else:
-				data.append(text[middle+len('POEM_DATA\n'):start-1])
+				data_text = text[middle+len('POEM_DATA\n'):start-1]
+				data_text = self.cutter.data_cut(data_text)
+				data.append(data_text)
 		return title, data
 	def clean(self):
 		f = codecs.open(self.midfile_dir +'/'+ self.poem_set, "w", self.encoding)
@@ -292,7 +301,7 @@ class data_loader():
 		print('source read')
 		f = codecs.open(self.midfile_dir +'/'+ self.poem_set, "r", self.encoding)
 		source = f.read()
-	
+		f.close()
 
 		# make vector, save
 		print('code_book setup start')
