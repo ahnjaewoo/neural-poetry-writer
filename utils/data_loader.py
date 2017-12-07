@@ -341,7 +341,7 @@ class data_loader():
 		self.np_batchs = np_batchs
 		return
 
-	def instant_batchs(self, text, batch_size, seq_len):
+	def instant_batchs(self, text):
 		# make vector, save
 		print('code_book setup start')
 		cb = code_book("")
@@ -354,8 +354,8 @@ class data_loader():
 		bm = batch_maker(
 			"",
 			"",
-			batch_size=batch_size,
-			seq_len=seq_len)
+			batch_size=self.batch_size,
+			seq_len=self.seq_len)
 		batchs = bm.make_batchs(text, "")
 
 		# make number batchs
