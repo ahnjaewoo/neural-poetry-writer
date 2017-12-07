@@ -7,6 +7,7 @@ class code_book():
 	def __init__(self, midfile_dir):
 		self.vector_size = 0
 		self.codes = dict()
+		self.codes_count = dict()
 		self.invert_codes = list()
 
 		self.midfile_dir = midfile_dir
@@ -24,6 +25,7 @@ class code_book():
 		codes_temp = dict()
 		idx = 0
 		for ch in codes_list:
+			self.codes_count[ch] = codes[ch]
 			codes_temp[ch] = idx
 			invert_codes.append(ch)
 			idx += 1
@@ -96,4 +98,6 @@ class code_book():
 	def debug_print(self):
 		print(self.vector_size)
 		print(self.codes)
+		for key, value in self.codes_count.items():
+			print(key + ':' +str(value))
 		

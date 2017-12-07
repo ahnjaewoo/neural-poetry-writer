@@ -340,3 +340,26 @@ class data_loader():
 		np_batchs = np.load(self.midfile_dir +'/'+ self.npbatch_set)
 		self.np_batchs = np_batchs
 		return
+
+	def instant_batchs(self, text, batch_size, seq_len):
+		# make vector, save
+		print('code_book setup start')
+		cb = code_book("")
+		for ch in text:
+			cb.gather(ch)
+		cb.sort_codes()
+		print('code_book length : '+str(cb.size()))
+
+		print('batch making start')
+		bm = batch_maker(
+			"",
+			"",
+			batch_size=batch_size,
+			seq_len=seq_len)
+		batchs = bm.make_batchs(text, "")
+
+		# make number batchs
+		print('number batch making start')
+		number_batchs = cb.get_number_batchs(batchs)
+		np_batchs = np.array(number_batchs)
+		return np_batchs
