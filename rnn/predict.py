@@ -1,6 +1,7 @@
 # generate a text with given input
 import torch
 import os
+import numpy as np
 
 from torch.autograd import Variable
 
@@ -12,7 +13,7 @@ def predict(model, start_sequence, predict_len=100, temperature=0.8):
 	X = torch.LongTensor(start_sequence).unsqueeze(0)
 	X = Variable(X)
 
-	predicted = []
+	predicted = np.array(start_sequence).flatten().tolist()
 	# build up hidden states
 	for i in range(sequence_len-1):
 		_, hidden = model(X[:,i], hidden)
