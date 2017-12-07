@@ -59,7 +59,7 @@ class data_cutter():
 			text = text.replace(disallow_from[i], ' ')
 		return text
 	def merge_space(self, text):
-		text = re.sub('[ \t]+',' ',text)
+		text = re.sub('[ \t\r]+',' ',text)
 		text = re.sub(' \n','\n',text)
 		text = re.sub('\n ','\n',text)
 		return text

@@ -288,14 +288,13 @@ class data_loader():
 	def set_dir(self, rawfile_dir, midfile_dir):
 		self.rawfile_dir = rawfile_dir
 		self.midfile_dir = midfile_dir
-	def preprocess(self, textfile_end = 2123, file_prefix = 'text', file_postfix='.txt'):
+	def file_preprocess(self, textfile_end = 2123, file_prefix = 'text', file_postfix='.txt'):
 		path_list = [(file_prefix+str(i)+file_postfix) for i in range(1, textfile_end + 1)]
 		# gather data
 		print('gatherer start')
 		gatherer = data_gatherer(self.rawfile_dir, self.midfile_dir)
 		gatherer.clean()
 		gatherer.gather(path_list)
-
 
 		# open source
 		print('source read')
@@ -325,11 +324,37 @@ class data_loader():
 		cb = self.cb
 		number_batchs = cb.get_number_batchs(batchs)
 		np_batchs = np.array(number_batchs)
-		np.save(self.midfile_dir +'/'+ self.npbatch_set, np_batchs)
 		self.np_batchs = np_batchs
 
 		print('preprocess done.')
 		return
+	def text_preprocess(self, source):
+		# make vector, save
+		print('code_book setup start')
+		cb = self.cb
+		for ch in source:
+			cb.gather(ch)
+		cb.sort_codes()
+		print('code_book length : '+str(cb.size()))
+		cb.save_to(self.code_set)
+
+		# make batches
+		print('batch making start')
+		bm = self.bm
+		batchs = bm.make_batchs(source, self.title_set)
+		
+		# make number batchs
+		print('number batch making start')
+		cb = self.cb
+		number_batchs = cb.get_number_batchs(batchs)
+		np_batchs = np.array(number_batchs)
+		self.np_batchs = np_batchs
+
+		print('preprocess done.')
+		return
+	def save(self):
+		self.cb.save_to(self.code_set)
+		np.save(self.midfile_dir +'/'+ self.npbatch_set, self.np_batchs)
 	def load(self):
 		# load vector
 		cb = self.cb
@@ -340,26 +365,3 @@ class data_loader():
 		np_batchs = np.load(self.midfile_dir +'/'+ self.npbatch_set)
 		self.np_batchs = np_batchs
 		return
-
-	def instant_batchs(self, text):
-		# make vector, save
-		print('code_book setup start')
-		cb = code_book("")
-		for ch in text:
-			cb.gather(ch)
-		cb.sort_codes()
-		print('code_book length : '+str(cb.size()))
-
-		print('batch making start')
-		bm = batch_maker(
-			"",
-			"",
-			batch_size=self.batch_size,
-			seq_len=self.seq_len)
-		batchs = bm.make_batchs(text, "")
-
-		# make number batchs
-		print('number batch making start')
-		number_batchs = cb.get_number_batchs(batchs)
-		np_batchs = np.array(number_batchs)
-		return np_batchs
