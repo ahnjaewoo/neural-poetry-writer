@@ -34,4 +34,4 @@ def predict(model, start_sequence, predict_len=100, temperature=0.8):
 		X = Variable(X)
 
 	# return the generated sequence except input
-	return predicted[sequence_len:]
+	return predicted
