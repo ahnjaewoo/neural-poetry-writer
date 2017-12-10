@@ -1,3 +1,4 @@
+import sys
 # step 1
 import matplotlib
 matplotlib.use('AGG')
@@ -9,8 +10,9 @@ import pickle
 import os
 from torch.autograd import Variable 
 from torchvision import transforms 
-from image_caption.build_vocab import Vocabulary
-from image_caption.model import EncoderCNN, DecoderRNN
+sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'image_caption'))
+from build_vocab import Vocabulary
+from model import EncoderCNN, DecoderRNN
 from PIL import Image
 # step 2
 from rnn.model import *
