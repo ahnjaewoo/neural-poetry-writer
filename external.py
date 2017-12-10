@@ -1,3 +1,5 @@
+import sys
+# step 1
 import matplotlib
 matplotlib.use('AGG')
 import torch
@@ -8,16 +10,21 @@ import pickle
 import os
 from torch.autograd import Variable 
 from torchvision import transforms 
+sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'image_caption'))
 from build_vocab import Vocabulary
 from model import EncoderCNN, DecoderRNN
 from PIL import Image
-
+# step 2
+from rnn.model import *
+from rnn.train import *
+from rnn.predict import *
+from utils.code_book import code_book
+from utils.data_cutter import data_cutter
 
 def to_var(x, volatile=False):
     if torch.cuda.is_available():
         x = x.cuda()
     return Variable(x, volatile=volatile)
-
 def load_image(image_path, transform=None):
     image = Image.open(image_path)
     image = image.resize([224, 224], Image.LANCZOS)
@@ -26,8 +33,11 @@ def load_image(image_path, transform=None):
         image = transform(image).unsqueeze(0)
     
     return image
-    
-def main(args):
+def image_to_caption(image_file,  embed_size=256, hidden_size=512, layers=1):
+    encoder_path = 'image_caption/models/encoder-5-4000.pkl'
+    decoder_path = 'image_caption/models/decoder-5-4000.pkl'
+    vocab_path = 'image_caption/data/vocab.pkl'
+
     # Image preprocessing
     transform = transforms.Compose([
         transforms.ToTensor(), 
@@ -35,22 +45,22 @@ def main(args):
                              (0.229, 0.224, 0.225))])
     
     # Load vocabulary wrapper
-    with open(args.vocab_path, 'rb') as f:
+    with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
 
     # Build Models
-    encoder = EncoderCNN(args.embed_size)
+    encoder = EncoderCNN(embed_size)
     encoder.eval()  # evaluation mode (BN uses moving mean/variance)
-    decoder = DecoderRNN(args.embed_size, args.hidden_size, 
-                         len(vocab), args.num_layers)
+    decoder = DecoderRNN(embed_size, hidden_size, 
+                         len(vocab), num_layers)
     
 
     # Load the trained model parameters
-    encoder.load_state_dict(torch.load(args.encoder_path))
-    decoder.load_state_dict(torch.load(args.decoder_path))
+    encoder.load_state_dict(torch.load(encoder_path))
+    decoder.load_state_dict(torch.load(decoder_path))
 
     # Prepare Image
-    image = load_image(args.image, transform)
+    image = load_image(image, transform)
     image_tensor = to_var(image, volatile=True)
     
     # If use gpu
@@ -71,29 +81,33 @@ def main(args):
         if word == '<end>':
             break
     sentence = ' '.join(sampled_caption)
-    
-    # Print out image and generated caption.
-    print (sentence)
-    image = Image.open(args.image)
-    plt.imshow(np.asarray(image))
-    
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--image', type=str, required=True,
-                        help='input image for generating caption')
-    parser.add_argument('--encoder_path', type=str, default='./models/encoder-5-4000.pkl', 
-                        help='path for trained encoder')
-    parser.add_argument('--decoder_path', type=str, default='./models/decoder-5-4000.pkl',
-                        help='path for trained decoder')
-    parser.add_argument('--vocab_path', type=str, default='./data/vocab.pkl',
-                        help='path for vocabulary wrapper')
-    
-    # Model parameters (should be same as paramters in train.py)
-    parser.add_argument('--embed_size', type=int , default=256,
-                        help='dimension of word embedding vectors')
-    parser.add_argument('--hidden_size', type=int , default=512,
-                        help='dimension of lstm hidden states')
-    parser.add_argument('--num_layers', type=int , default=1 ,
-                        help='number of layers in lstm')
-    args = parser.parse_args()
-    main(args)
+
+    return sentence
+
+def caption_to_poem(start_str):
+    # Make Codebook
+    codebook_dir = "mid_data/"
+    codebook_name = "code_set.txt"
+    cb = code_book(codebook_dir)
+    cb.load_from(codebook_name)
+
+    # Load Trained Model
+    model_dir = "rnn_models/"
+    model_name = "rnn_model_result.pt"
+    decoder = torch.load(model_dir + model_name)
+
+    # process caption
+    dc = data_cutter('control_data')
+    start_str = data_cut(start_str)
+
+    # Generate poem using rnn model
+    start_sequence = cb.get_number_batch(start_str)
+    poem = predict(decoder, start_sequence, 1000)
+
+    return cb.get_string(poem)
+
+def image_to_poem(image_file):
+    caption = image_to_caption(image_file)
+    poem = cpation_to_poem(caption)
+    return poem
+
