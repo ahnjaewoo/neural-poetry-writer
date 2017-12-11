@@ -19,11 +19,6 @@
 4. memory issue : can memory hold all data during learning?
 5. vectors ready : set all vectors for whole data before training? / set only used vectors on each batches?
 
-- Usage
-1. Prepare for code_set.txt which will be given soon.
-2. Prepare for encoder, decoder model used in image captioning which will be given soon. 
-3. python interface_test.py --image='./image_caption/png/example.png'
-
 ## Usage
 
 
