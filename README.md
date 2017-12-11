@@ -29,3 +29,28 @@
 $ python interface_test.py --image='./image_caption/png/example.png'
 ```
 
+## Sample Result
+
+<p><img src="./image_caption/png/example.png"></p>
+<p>a group of giraffes are standing together in a zoo.
+when spirit of neir waste such a let of the past and broops
+
+and i went
+to the earth of a stars‚ she is‚
+
+the poor fingers obeless and poach out; even little black
+and i am a finding lay and
+green husbandless cars are a flutter
+of folk me‚ i have come
+when the most please of chamber soaked with the flames american henged‚
+the nails and dishina letstimations.
+
+gravel post and kindled on him they surface the soul when the very side was the same of the months
+she was the stage
+of laugh's bowls
+in my fragment is read‚ too
+who was naked to save her
+
+not with the layway were made approach‚
+salting and together.
+…</p>
