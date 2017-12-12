@@ -89,7 +89,7 @@ def caption_to_poem(start_str):
 
     # Load Trained Model
     model_dir = "rnn_models/"
-    model_name = "rnn_model_result2.pt"
+    model_name = "rnn_model_result.pt"
     decoder = torch.load(model_dir + model_name)
 
     # process caption

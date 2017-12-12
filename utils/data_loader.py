@@ -3,10 +3,6 @@ import numpy as np
 from utils.code_book import code_book
 from utils.data_cutter import data_cutter
 
-# 여러 파일에 나뉘어져있는 데이터를 한 파일로 합치기 위한 모듈
-# clean : 저장 할 파일을 초기화
-# gather('a.txt', 'b.txt', ...) : args로 주어진 파일들을 읽어 대상파일로 저장
-# (drop/add), (normal/stride), (whole/one) mode is not this module's scope.
 class data_gatherer():
 	def __init__(self, rawfile_dir, midfile_dir, encoding='utf-8'):
 		self.poem_set = 'poem_set.txt'
@@ -64,7 +60,6 @@ class data_gatherer():
 		f1.close()
 		f3.close()
 
-# 배치 생성 모듈
 # drop/add
 # normal/stride
 # whole/one -------------------------------------> TODO
@@ -256,10 +251,8 @@ class batch_maker():
 
 
 
-# 데이터를 로드, 전처리, 배치 생성을 위함
 # https://github.com/sherjilozair/char-rnn-tensorflow/blob/master/utils.py
 # https://chunml.github.io/ChunML.github.io/project/Creating-Text-Generator-Using-Recurrent-Neural-Network/
-# 참조
 class data_loader():
 	def __init__(self, seq_len, batch_size, rawfile_dir, midfile_dir, encoding='utf-8'):
 		self.poem_set = "poem_set.txt"
