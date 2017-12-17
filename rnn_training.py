@@ -4,8 +4,8 @@ from rnn.predict import *
 from utils.data_loader import *
 
 # Hyper params
-batch_size = 50
-sequence_len = 200
+batch_size = 100
+sequence_len = 400
 
 # Data path
 rawdata_dir = 'raw_data/data'
@@ -13,7 +13,6 @@ middata_dir = 'mid_data'
 poem_dir = "poem_result"
 model_dir = "rnn_models"
 
-# load data from file
 # data loader
 loader = data_loader(sequence_len, batch_size, rawdata_dir, middata_dir)
 loader.load()
@@ -23,24 +22,26 @@ cb = loader.cb
 data_batch = loader.np_batchs
 
 # Training New Model
+
 # Model Params
 input_size = cb.size()
-hidden_size = 128
+hidden_size = 512
 output_size = cb.size()
-n_layers = 2
-
+n_layers = 3
+dropout = 0.25
 # Model
-#decoder = RNN(input_size, hidden_size, output_size, n_layers)
+#decoder = RNN(input_size, hidden_size, output_size, n_layers, dropout)
 
 # Training Exist Model
-model_name = "rnn_model_result.pt"
+model_name = "rnn_model_result_final.pt"
+save_model_name = model_name.split('.')[0]
 decoder = torch.load(model_dir + "/" + model_name)
 
 # Training Script
 # Hyper Params
 lr = 0.003
 n_epochs = -1
-print_cycle = 100
+print_cycle = 10
 save_cycle = 10000
 start_sequence = cb.get_number_batch("apple")
 
@@ -60,7 +61,7 @@ try:
                 print('[Time : %s, Epoach : (%d), Loss : %.4f]' % (time_since(start), epoch, loss))
                 print(cb.get_string(predict(decoder, start_sequence, 100)))
             if (epoch % save_cycle == 0):
-	        save(decoder, "./"+model_dir+"/rnn_model"+str(model_num))
+	        save(decoder, "./"+model_dir+"/"+save_model_name+"-"+str(model_num))
 		print("Save %d model" % (model_num))
 
     else :
@@ -76,13 +77,13 @@ try:
         f = open("./" + poem_dir + "/poem_result.txt", 'w')
         predicted = predict(decoder, start_sequence, 1000)
         f.write(cb.get_string(predicted))
-        save(decoder, "./"+model_dir+"/rnn_model_result")
+        save(decoder, "./"+model_dir+"/"+save_model_name)
         f.close()
         
 except KeyboardInterrupt:
     print("Saving before quit...")
-    save(decoder, "./"+model_dir+"/rnn_model_result")
+    save(decoder, "./"+model_dir+"/"+save_model_name)
     
 except :
     print("Learning Failure!! Saving before quit...")
-    save(decoder, "./"+model_dir+"/rnn_model_result")
+    save(decoder, "./"+model_dir+"/"+save_model_name)
