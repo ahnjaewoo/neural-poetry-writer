@@ -1,17 +1,9 @@
 # neural-poet-writer
 
-##Objective
+## Objective
 
 #### 1. Image to Caption Creation
 #### 2. Caption to Text(poem/title) Creation
-
-##Method
-
-#### 1. Image to Caption
-#### 2. Caption to Text
-##### 1. Use lstm, feed batch for train batch.
-##### 2. Make text from caption feed.
-##### 3. Create title but not decided yet.
 
 ## Issue
 
