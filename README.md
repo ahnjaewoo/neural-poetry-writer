@@ -1,23 +1,23 @@
 # neural-poet-writer
 
-- Objective
-1. image -> caption creation
-2. caption -> text (poem / title) creation
+##Objective
 
-- Method
-1. Image->Caption
+#### 1. Image to Caption Creation
+#### 2. Caption to Text(poem/title) Creation
 
-2. Caption->Text
-	1. use lstm, feed batch for train batch
-	2. make text from caption feed. remove caption on poem.
-	3. tile creation method not decided yet.
+##Method
 
-- Issue
-1. title creation : how? (learn double lstm?)
-2. batch division : per poem (drop per poem) / whole data basis (drop lack of sequence per data)
-3. generation cutting : user define (user set generation length) / learning (learn length on vectors)
-4. memory issue : can memory hold all data during learning?
-5. vectors ready : set all vectors for whole data before training? / set only used vectors on each batches?
+#### 1. Image to Caption
+#### 2. Caption to Text
+##### 1. Use lstm, feed batch for train batch.
+##### 2. Make text from caption feed.
+##### 3. Create title but not decided yet.
+
+## Issue
+
+#### 1. Title creation : how? (learn double lstm?)
+#### 2. Batch division : per poem (drop per poem) / whole data basis (drop lack of sequence per data)
+#### 3. Generation cutting : user define (user set generation length) / learning (learn length on vectors)
 
 ## Usage
 
