@@ -10,5 +10,3 @@ usage : crawl(page-number, list_wait, poem_wait)
 	page_number	- crawling poem list index
 	list_wait	- wait seconds per list move
 	poem_wait	- wait seconds per poem move
-
-data example : text1.txt
