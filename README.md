@@ -22,9 +22,14 @@
 ## Usage
 
 
-#### 1. Prepare for code_set.txt which will be given soon.
-#### 2. Prepare for encoder, decoder model used in image captioning, which will be given soon.
-#### 3. Test the model
+#### 1. Prepare for code_set.txt in mid_data directory.
+#### 2. Prepare for encoder, decoder model in image_caption/models directory.
+#### 3. Train the image captioning model(description at image_caption directory).
+#### 4. Train the poem generating model
+```bash
+$ python rnn_training.py
+```
+#### 5. Test the model
 ```bash
 $ python interface_test.py --image='./image_caption/png/example.png'
 ```
@@ -32,25 +37,17 @@ $ python interface_test.py --image='./image_caption/png/example.png'
 ## Sample Result
 
 <p><img src="./image_caption/png/example.png"></p>
-<p>a group of giraffes are standing together in a zoo.
-when spirit of neir waste such a let of the past and broops
+<p> a group of giraffes are standing together in a zoo . she wants
+forgiven me to him in a lady light in a honey.
+how they might want to his way into moloches and seemed many
+over the inkform of his own melanchole who stood
+for the brittle and the world of the horizon of white plunges
 
-and i went
-to the earth of a stars‚ she is‚
+and the street was a late cloud of west step and straight alongside‚ how month
+feels shoulder steam to your land. the woman i see
+the other tree if i forget that i'd been held him
+over the way to frown inside it‚ warned and drinking the bed.
+the long living threatens the "angle?" like a name here mixed off the neck.
 
-the poor fingers obeless and poach out; even little black
-and i am a finding lay and
-green husbandless cars are a flutter
-of folk me‚ i have come
-when the most please of chamber soaked with the flames american henged‚
-the nails and dishina letstimations.
-
-gravel post and kindled on him they surface the soul when the very side was the same of the months
-she was the stage
-of laugh's bowls
-in my fragment is read‚ too
-who was naked to save her
-
-not with the layway were made approach‚
-salting and together.
-…</p>
+yes‚ i was a window and at sinfound men‚ these skies for a hundred
+when it wouldn't go in the bugle‚ i want the other eyes...</p>
