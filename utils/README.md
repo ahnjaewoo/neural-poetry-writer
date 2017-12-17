@@ -57,9 +57,10 @@
 - 앞서 명시한 클래스의 기능을 이용하여 학습 전의 배치 생성까지의 작업에 관여
 
 1. code_book
-- manage character:number mapping, vector creation based on number code dictionary
+- manage character:number mapping, number:character mapping based on dictionary
 - major functions are below:
 	1. gather character mapping of unseen character
+	2. sort dictionary by order of most frequent character first
 	2. save to file
 	3. load from file
 	4. get numpy vectors that correspond to given text
