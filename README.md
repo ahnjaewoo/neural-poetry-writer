@@ -1,4 +1,4 @@
-# neural-poet-writer
+# neural-poetry-writer
 
 ## Objective
 
